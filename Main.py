@@ -1,60 +1,47 @@
-count = 0
-value_month = 0
-value_year = 0
+def stock_prices_evaluator(file, mode, list_return = 1):
 
-float_month = 0
-float_year = 0
+    count = 0
+    value_month = 0
+    value_year = 0
 
-avg_month = 0
-avg_year = 0
+    float_month = 0
+    float_year = 0
 
-list_months = []
-list_avg_months = []
-list_years = []
-list_avg_years = []
+    current_month = ""
+    current_year = ""
 
-file = open("googleprices.csv", "r")
+    list_months = []
+    list_avg_months = []
+    list_years = []
+    list_avg_years = []
 
-for line in file.read().split():
+    file = open(file, mode)
 
-    arr_temp = [string for string in line.split(",")]
+    for line in file.read().split():
 
-    try:
-        float_day = float(arr_temp[5]) * float(arr_temp[6])
-        value_day = float(arr_temp[6])
+        arr_temp = [string for string in line.split(",")]
 
-        #Set the values for the first interaction
-        if count < 1:
-            current_month = arr_temp[0][5:7]
-            current_year = arr_temp[0][0:4]
+        try:
+            float_day = float(arr_temp[5]) * float(arr_temp[6])
+            value_day = float(arr_temp[6])
 
-            value_month += value_day
-            float_month += float_day
-            avg_month = float_month / value_month
-            list_avg_months.append(avg_month)
-            list_months.append(current_year + "/" + current_month)
+            # When the year change Add to the list the Average
+            if arr_temp[0][0:4] != current_year:
+                current_year = arr_temp[0][0:4]
+                list_years.append(current_year)
+                list_avg_years.append(0)
+                value_year = 0
+                float_year = 0
 
-            float_year += float_day
-            value_year += value_day
-            avg_year = float_year / value_year
-            list_avg_years.append(avg_year)
-            list_years.append(current_year)
+            #When the month change Add to the list the Average
+            if arr_temp[0][5:7] != current_month:
+                current_month = arr_temp[0][5:7]
+                list_months.append(current_year + "/" + current_month)
+                list_avg_months.append(0)
+                value_month = 0
+                float_month = 0
 
-        #When the month change Add to the list the Average
-        if arr_temp[0][5:7] != current_month:
-            list_months.append(current_year + "/" + current_month)
-            list_avg_months.append(0)
-            value_month = 0
-            float_month = 0
 
-        # When the year change Add to the list the Average
-        if arr_temp[0][0:4] != current_year:
-            list_years.append(current_year)
-            list_avg_years.append(0)
-            value_year = 0
-            float_year = 0
-
-        if count >= 1:
             value_month += value_day
             float_month += float_day
             avg_month = float_month / value_month
@@ -65,22 +52,28 @@ for line in file.read().split():
             avg_year = float_year / value_year
             list_avg_years[-1] = avg_year
 
-        current_month = arr_temp[0][5:7]
-        current_year = arr_temp[0][0:4]
-        count += 1
+            count += 1
 
-    except:
-        continue
+        except:
+            continue
 
+    if list_return == 1:
+        best_six_months = sorted(zip(list_avg_months, list_months), reverse=True)[:6]
+        print(best_six_months)
 
-best_six_months = sorted(zip(list_avg_months, list_months), reverse=True)[:6]
-print(best_six_months)
+    elif list_return == 2:
+        worst_six_months = sorted(zip(list_avg_months, list_months))[:6]
+        print(worst_six_months)
 
-best_six_months = sorted(zip(list_avg_months, list_months))[:6]
-print(best_six_months)
+    elif list_return == 3:
+        best_six_years = sorted(zip(list_avg_years, list_years), reverse=True)[:6]
+        print(best_six_years)
 
-best_six_months = sorted(zip(list_avg_years, list_years), reverse=True)[:6]
-print(best_six_months)
+    elif list_return == 4:
+        worst_six_years = sorted(zip(list_avg_years, list_years))[:6]
+        print(worst_six_years)
 
-best_six_months = sorted(zip(list_avg_years, list_years))[:6]
-print(best_six_months)
+    else:
+        print(list(zip(list_avg_months, list_months)))
+
+stock_prices_evaluator("googleprices.csv", "r")
