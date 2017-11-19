@@ -1,26 +1,26 @@
 import httplib2
 
-def stock_prices_evaluator(url, list_return=1):
 
-    """This Function receives an URL with a CSV file and an optional value for a given list to be returned.
-    Being:
+def stock_prices_evaluator(url, list_return=5):
+    """This Function receives an URL with a CSV file from the historical Stock Prices form a given company
+    Calculates the average price and prints the following options:
     1 = Best six months,
     2 = Worst six months,
     3 = Best six years,
     4 = Worst six years,
-    Any orther value will return all the months.
-    """
+    Any orther value will return all the months."""
 
-    decoded = ""
+    decoded = ""  # Sets the variable to an empty string
     try:
-        h = httplib2.Http(".cache")
-        headers, body = h.request(url)
+        file_from_web = httplib2.Http(".cache")
+        headers, body = file_from_web.request(url)
         decoded = body.decode('utf-8')
 
     except Exception as e:
         print(e)
 
     count = 0  # Count of interactions
+    count_values = 0
     value_month = 0  # Sum of the month's value
     value_year = 0  # Sum of the years's value
 
@@ -30,7 +30,7 @@ def stock_prices_evaluator(url, list_return=1):
     current_month = ""  # Stores the current month in a String
     current_year = ""  # Stores the current year in a String
 
-    # The lists to be filled in the interations
+    # The lists to be filled in the iterations
     list_months = []
     list_avg_months = []
     list_years = []
@@ -42,7 +42,7 @@ def stock_prices_evaluator(url, list_return=1):
         # Creates a temporary list with the line values
         list_temp = [string for string in line.split(",")]
 
-        # Everything is wraped into a try/except case the file is corrupted or is invalid.
+        # Everything is wrapped into a try/except case the file is corrupted or is invalid.
         try:
             float_day = float(list_temp[5]) * float(list_temp[6])
             value_day = float(list_temp[6])
@@ -83,25 +83,40 @@ def stock_prices_evaluator(url, list_return=1):
         except:
             continue
 
-    # If/Else to return the list
+    # If/Else to print the list
     if list_return == 1:
         best_six_months = sorted(zip(list_avg_months, list_months), reverse=True)[:6]
-        print(best_six_months)
+        print("The Best Six months:")
+        print("-" * 33)
+        for value in best_six_months:
+            print(("The Value in {} was {:0.4f}").format(value[1], value[0]))
 
     elif list_return == 2:
         worst_six_months = sorted(zip(list_avg_months, list_months))[:6]
-        print(worst_six_months)
+        print("The Worst Six months:")
+        print("-" * 33)
+        for value in worst_six_months:
+            print(("The Value in {} was {:0.4f}").format(value[1], value[0]))
 
     elif list_return == 3:
         best_six_years = sorted(zip(list_avg_years, list_years), reverse=True)[:6]
-        print(best_six_years)
+        print("The Best Six years:")
+        print("-" * 33)
+        for value in best_six_years:
+            print(("The Value in {} was {:0.4f}").format(value[1], value[0]))
 
     elif list_return == 4:
         worst_six_years = sorted(zip(list_avg_years, list_years))[:6]
-        print(worst_six_years)
+        print("The Worst Six months:")
+        print("-" * 33)
+        for value in worst_six_years:
+            print("The Value in {} was {:0.4f}".format(value[1], value[0]))
 
     else:
-        print(list(zip(list_avg_months, list_months)))
+        months = list(zip(list_avg_months, list_months))
+        print("-" * 33)
+        for value in months:
+            print(("The Value in {} was {:0.4f}").format(value[1], value[0]))
 
 
-stock_prices_evaluator("http://mf2.dit.ie/googleprices.csv")
+stock_prices_evaluator("http://mf2.dit.ie/googleprices.csv", 2)
